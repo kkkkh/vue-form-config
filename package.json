@@ -1,0 +1,63 @@
+{
+  "name": "vue-form-config",
+  "version": "1.1.6",
+  "description": "vue,form,vue-form-config,element,element-ui",
+  "private": false,
+  "main": "lib/vue-form-config.umd.min.js",
+  "keyword": "vue form config vue-form-config element element-ui",
+  "author": "kkkkh",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vue-cli-service serve --mode dev",
+    "build": "vue-cli-service build --mode prod",
+    "release": "vue-cli-service serve --mode release",
+    "lint": "vue-cli-service lint",
+    "lib": "vue-cli-service build --target lib --name vue-form-config --dest lib packages/index.js"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "core-js": "^2.6.5",
+    "element-ui": "^2.9.1",
+    "less": "^3.9.0",
+    "less-loader": "^5.0.0",
+    "vue": "^2.6.10",
+    "vue-router": "^3.0.6",
+    "vuex": "^3.1.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.8.0",
+    "@vue/cli-plugin-eslint": "^3.8.0",
+    "@vue/cli-service": "^3.8.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kkkkh/vue-form-config.git"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
