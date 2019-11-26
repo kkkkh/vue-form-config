@@ -12,6 +12,7 @@ babel.config.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+yarn.lovk
 
 # Editor directories and files
 .idea
