@@ -1,6 +1,6 @@
 {
   "name": "vue-form-config",
-  "version": "1.1.6",
+  "version": "1.2.9",
   "description": "vue,form,vue-form-config,element,element-ui",
   "private": false,
   "main": "lib/vue-form-config.umd.min.js",
@@ -8,7 +8,7 @@
   "author": "kkkkh",
   "license": "MIT",
   "scripts": {
-    "dev": "vue-cli-service serve --mode dev",
+    "dev": "vue-cli-service serve",
     "build": "vue-cli-service build --mode prod",
     "release": "vue-cli-service serve --mode release",
     "lint": "vue-cli-service lint",

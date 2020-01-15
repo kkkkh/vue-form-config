@@ -149,6 +149,7 @@ btn|按钮|array|--|--|只有saveStep/nextStep默认验证，<br>并返回表单
 ### type=input
 参数 | 说明 | 类型| 可选值 | 默认值 | 其他
 ---|---|---|---|---|---
+*clearable|	单选时是否可以清空选项|	boolean	||	false
 *inputType|input类型的子类|string|text/passwaord/textarea|text|(普通输入框/密码输入框/文本域)
 *showWordLimit|是否显示输入字数统计|boolean||false|配合maxLength
 ```js
@@ -235,9 +236,9 @@ btn|按钮|array|--|--|只有saveStep/nextStep默认验证，<br>并返回表单
 ```
 参数 | 说明 | 类型| 可选值  | 其他
 ---|---|---|---|---|---
-*spreadLink|关联另一个字段,并控制其值|
+*spreadLink|关联另一个字段,并控制其值|object/array||(支持type=input/select类型)，支持数组array模式，可以关联多个keyName
 ||keyName|关联字段|string|
-||tick|关联字段回调返回值|function|举例(val)=>{return val.toString()//进行处理}
+||tick|关联字段回调返回值|function|举例(val)=>{return val.toString()//进行处理}<br/>*返回值支持promise对象
 ```js
 {
     label:'金额（元）',
@@ -253,12 +254,24 @@ btn|按钮|array|--|--|只有saveStep/nextStep默认验证，<br>并返回表单
             return numberChineseFormat(value)//转为大写
         }
     }
+    //支持数组模式
+    //spreadLink:[
+    // {
+    //     keyName:'accountBig',
+    //     tick:(val)=>{
+    //         const value = Number(val)
+    //         if(isNaN(value)) return ''
+    //         return numberChineseFormat(value)//转为大写
+    //     }
+    // }
+    //]
 }
 ```
-参数 | 说明 | 类型| 可选值 
+参数 | 说明 | 类型| 可选值|备注|其他
 ---|---|---|---|---|---
 *hideLink|关联另一个字段,并控制其文本框显示隐藏|
 ||keyName|关联字段|string|
+||type|隐藏形式|string|hide/show|没有值，默认为hide，即等于当前value为隐藏，其他为显式；设为show，则等于当前value为显示，其他值为隐藏
 ||value|关联字段隐藏的值|||
 ```js
 {
@@ -374,6 +387,7 @@ checkLink: {
 参数 | 说明 | 类型| 参考值 | 默认值 | 其他
 ---|---|---|---|---|---
 *options|选项|array|{value:'1',label:'海淀'，label:'2',labelName:'朝阳'}|value为值，<br>label显示文案
+*clearable|	单选时是否可以清空选项|	boolean	||	false
 *filterable|	是否可搜索|	boolean	||	false
 *remote| 是否为远程搜索| boolean |	|false
 *tick|	远程搜索方法|function|function(data){} data:{keyName:'bank'，bank:value}|	|
@@ -381,6 +395,11 @@ checkLink: {
 *link | 关联其他输入框|object|-|-|用于areaSelect地域联动
 ||keyName|关联字段|-||下拉选择后，关联字段输入框会置空
 ||tick|关联回调|-|function(val){} val为选择的值|下拉选择后，调取此回调函数
+*templete|支持自定义模板|array|[{class: "",label: "数据",key: "data",child: {key: "childData"}}]|
+||class|单条数据样式|string|
+||label|对应显式文案|string|
+||key|对应显式字段（一级字段）|string|没有child，对应显式key一级字段值
+||child|对应显式子级字段（下一级字段）|object|child: {key: "childData"，child:{key:'childData2'}}|可以无限增加child，key绑定对应显式字段
 ```js
 {
     label:'',
@@ -404,41 +423,43 @@ checkLink: {
     ||使用select属性
 ```js
 {
-    label:'注册地域',
-    type:'areaSelect',
-    area:[
+    type: 'areaSelect',
+    area: [
         {
-            keyName:'province',
-            placeholder:'请选择省份',
-            defaultValue:'',
-            options:[],
-            rules:[
+            keyName: 'province',
+            type: 'select',
+            label: '注册地域',
+            placeholder: '请选择省份',
+            defaultValue: '',
+            options: [],
+            rules: [
                 {
                     required: true,
                     message: '请选择省份',
-                    trigger: 'blur'
-                },
+                    trigger: 'change'
+                }
             ],
-            link:{
-                keyName:'city',
-                tick:(val)=>{
+            link: {
+                keyName: 'city',
+                tick: val => {
                     this.getCityOpt(val)
                 }
             }
         },
         {
-            keyName:'city',
-            placeholder:'请选择城市',
-            defaultValue:'',
-            options:[],
-            rules:[
+            keyName: 'city',
+            placeholder: '请选择城市',
+            defaultValue: '',
+            options: [],
+            type: 'select',
+            rules: [
                 {
                     required: true,
                     message: '请选择城市',
-                    trigger: 'blur'
-                },
-            ],
-        },
+                    trigger: 'change'
+                }
+            ]
+        }
     ]
 },
 ```
@@ -446,17 +467,27 @@ checkLink: {
 参数 | 说明 | 类型| 可选值 | 其他
 ---|---|---|---|---|---
 uploadType |上传子类型|string|image/file|
-urlKeyName|uploadType='image'上传成功图片回显使用字段，<br>uploadType='file'上传成功文件名称回显字段|string
-valueKeyName|上传成功，取值使用字段|string
+<font color=#e0e0e0 size=3>urlKeyName</font><font color=#FF3030 size=1>(1.1.11之后版本废弃)</font>|uploadType='image'上传成功图片回显使用字段，<br>uploadType='file'上传成功文件名称回显字段|string||<font color=#FF3030 size=1>(1.1.11之后版本废弃)</font>
+<font color=#e0e0e0 size=3>valueKeyName</font><font color=#FF3030 size=1>(1.1.11之后版本废弃)</font>|上传成功，取值使用字段|string||<font color=#FF3030 size=1>(1.1.11之后版本废弃)</font>
 apiUrl|上传成功，路径服务地址|string
 action|上传地址|string
+headers|设置上传的请求头部|object
 name|上传文件formData，文件字段名称
 data|上传其他参数|object
 accept|上传类型|string||image/jpg,image/jpeg,image/png,.pdf
 limitSize|上传大小（M）|number|
 html|提示文案|string||（支持html字符串）
-tick|上传前和上传后的回调处理函数|object|before/success/fail/error(回调函数)|（上传前/成功/失败/报错）<br />before需要返回值成功改为true,不成功为false
-uploadUrl |照片回显|string|
+uploadUrl|照片回显使用字段|string|
+uploadProp|挂载上传信息|string\object...|上传成功、回显上传的相关信息，都可以绑定到此字段
+tick|上传前和上传后的回调处理函数|object|before/success/fail/error(回调函数)|（上传前/成功/失败/报错）
+||*before|上传前|function|返回值继续执行为true,中断为false
+||*<font color=#e0e0e0 size=3>success</font><font color=#FF3030 size=1>(1.1.11之后版本废弃)</font>|上传成功|function|<font color=#FF3030 size=1>(1.1.11之后版本废弃)</font>
+||*<font color=#e0e0e0 size=3>fail</font><font color=#FF3030 size=1>(1.1.11之后版本废弃)</font>|上传失败|function|<font color=#FF3030 size=1>(1.1.11之后版本废弃)</font>
+||*heighSuccess<font color=#069902 size=1>(1.1.11之后版本增加)</font>|上传成功|function|返回值为对应字段的值
+||*error|上传报错|function|
+||*delete|删除文件|function|
+||*look|点击文件查看回调|function|
+<font color=#069902 size=3>(备注：1.1.11改为heighSuccess函数处理上传结果)</font>
 ```js
 {
     label:'',
@@ -476,9 +507,6 @@ uploadUrl |照片回显|string|
         before:()=>{
             return this.example()
         },
-        after:()=>{
-             this.example()
-        }
     },
     rules:[
         {
