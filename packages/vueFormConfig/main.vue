@@ -2,7 +2,7 @@
   <div
     :class="{
       'vue-form-container': true,
-      'vue-form-bottom': defaultConfig.isBottom
+      'vue-form-bottom': defaultConfig.isBottom,
     }"
   >
     <!-- <h3>{{defaultConfig.title}}</h3> -->
@@ -18,10 +18,15 @@
       :inline-message="false"
       :label-position="defaultConfig.labelPosition"
     >
-      <div v-if="init">
+      <div v-if="init" class="form-item-container">
         <div
           :class="['form-item', defaultConfig.inline ? 'form-item-inline' : '']"
           v-for="(item, index) in params.data"
+          :style="
+            !defaultConfig.inline && !item.novisible && !cutTitleVisible(item)
+              ? 'width:' + 100 / defaultConfig.row + '%'
+              : ''
+          "
           :key="index"
         >
           <div
@@ -33,7 +38,7 @@
           <div
             :class="[
               'form-item-area',
-              defaultConfig.inline ? 'form-item-area-inline' : ''
+              defaultConfig.inline ? 'form-item-area-inline' : '',
             ]"
             v-if="item.type === 'areaSelect'"
           >
@@ -62,7 +67,11 @@
           </div>
         </div>
         <div
-          :style="`text-align:${defaultConfig.btnPosition}`"
+          :style="
+            defaultConfig.inline
+              ? ''
+              : `width:100%;text-align:${defaultConfig.btnPosition}`
+          "
           :class="[defaultConfig.inline ? 'form-btn-inline' : '']"
         >
           <el-button
@@ -73,6 +82,8 @@
             :key="index"
             :disabled="disabledObj[item.key] ? true : false"
             @click="btnHandle(item.key, item.novalidate)"
+            :icon="item.icon ? item.icon : ''"
+            :size="item.size ? item.size : ''"
           >
             {{ item.text }}
           </el-button>
@@ -94,8 +105,8 @@ export default {
       type: Object,
       default: () => {
         return defaultParams;
-      }
-    }
+      },
+    },
   },
   computed: {
     align() {
@@ -125,20 +136,20 @@ export default {
     },
     dataStore() {
       return JSON.parse(JSON.stringify(this.params.data));
-    }
+    },
   },
   components: {
     vueFormItem,
-    titleHeader
+    titleHeader,
   },
   data() {
     return {
       form: {},
       disabledObj: {
         nextStep: false,
-        saveStep: false
+        saveStep: false,
       },
-      init: false
+      init: false,
     };
   },
   mounted() {
@@ -171,7 +182,7 @@ export default {
   },
   provide: function() {
     return {
-      refValidate: this.refValidate
+      refValidate: this.refValidate,
     };
   },
   watch: {
@@ -182,8 +193,9 @@ export default {
           //这里转为json字符串，作对比，
           //例如日期值为数组，对数组的转化处理，
           //特此说明
-          const newVlaue = JSON.stringify(newVal[i].defaultValue);
-          const oldVlaue = JSON.stringify(oldVal[i].defaultValue);
+          // debugger;
+          const newVlaue = newVal[i] && JSON.stringify(newVal[i].defaultValue);
+          const oldVlaue = oldVal[i] && JSON.stringify(oldVal[i].defaultValue);
           if ((newVal[i] && !oldVal[i]) || newVlaue !== oldVlaue) {
             // debugger;
             this.updateForm();
@@ -191,16 +203,28 @@ export default {
           }
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     cutTitleVisible(item) {
       if (item.hideLink) {
         if (item.hideLink.type == undefined || item.hideLink.type === "hide") {
-          return this.form[item.hideLink.keyName] === item.hideLink.value;
+          if (Array.isArray(item.hideLink.value)) {
+            return item.hideLink.value.includes(
+              this.form[item.hideLink.keyName]
+            );
+          } else {
+            return this.form[item.hideLink.keyName] === item.hideLink.value;
+          }
         } else if (item.hideLink.type === "show") {
-          return this.form[item.hideLink.keyName] !== item.hideLink.value;
+          if (Array.isArray(item.hideLink.value)) {
+            return !item.hideLink.value.includes(
+              this.form[item.hideLink.keyName]
+            );
+          } else {
+            return this.form[item.hideLink.keyName] !== item.hideLink.value;
+          }
         } else {
           return false;
         }
@@ -212,14 +236,19 @@ export default {
       //   item.hideLink.value === this.form[item.hideLink.keyName]
       // );
     },
+    immediateUpdateForm(values) {
+      for (let key in values) {
+        this.form[key] = values[key];
+      }
+    },
     updateForm() {
       // debugger;
-      this.params.data.forEach(item => {
+      this.params.data.forEach((item) => {
         // debugger;
         if (item.type === "noKeyName") return;
         if (item.type === "areaSelect") {
           //省市
-          item.area.forEach(child => {
+          item.area.forEach((child) => {
             this.$set(this.form, child.keyName, child.defaultValue);
             if (child.checkLink)
               this.$set(
@@ -245,7 +274,7 @@ export default {
     refValidate(keyName) {
       // debugger
       let validaterRes;
-      this.$refs[this.defaultConfig.ref].validateField(keyName, res => {
+      this.$refs[this.defaultConfig.ref].validateField(keyName, (res) => {
         if (res) {
           validaterRes = false;
         } else {
@@ -265,7 +294,7 @@ export default {
         this.disabledObj[key] = true;
         this.$emit("nextStep", this.form, key, this.cancelDisabled);
       } else {
-        this.$refs[this.defaultConfig.ref].validate(valid => {
+        this.$refs[this.defaultConfig.ref].validate((valid) => {
           if (valid) {
             // debugger
             this.disabledObj[key] = true;
@@ -281,7 +310,7 @@ export default {
         this.disabledObj[key] = true;
         this.$emit("saveStep", this.form, key, this.cancelDisabled);
       } else {
-        this.$refs[this.defaultConfig.ref].validate(valid => {
+        this.$refs[this.defaultConfig.ref].validate((valid) => {
           if (valid) {
             this.disabledObj[key] = true;
             this.$emit("saveStep", this.form, key, this.cancelDisabled);
@@ -298,13 +327,18 @@ export default {
     resetStep() {
       // debugger
       this.$refs[this.defaultConfig.ref].resetFields();
-    }
-  }
+      this.$emit("resetStep");
+    },
+  },
 };
 </script>
 
 <style lang="less">
 .vue-form-container {
+  .form-item-container {
+    display: flex;
+    flex-flow: wrap;
+  }
   &.vue-form-bottom {
     padding-bottom: 20px;
   }

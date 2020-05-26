@@ -106,10 +106,10 @@ export default {
           callback();
           return;
         }
-        if (!this.refValidate(this.valueItem.associated)) {
-          callback();
-          return;
-        }
+        // if (!this.refValidate(this.valueItem.associated)) {
+        //   callback();
+        //   return;
+        // }
         if (parseInt(value) < parseInt(this.form[this.valueItem.associated])) {
           callback();
         } else {
@@ -120,10 +120,10 @@ export default {
           callback();
           return;
         }
-        if (!this.refValidate(this.valueItem.associated)) {
-          callback();
-          return;
-        }
+        // if (!this.refValidate(this.valueItem.associated)) {
+        //   callback();
+        //   return;
+        // }
         if (parseInt(value) > parseInt(this.form[this.valueItem.associated])) {
           callback();
         } else {
@@ -135,5 +135,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

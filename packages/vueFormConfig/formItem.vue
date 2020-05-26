@@ -7,32 +7,32 @@ import ImageVerificationPop from "./imageVerificationPop";
 export default {
   components: {
     subItem,
-    ImageVerificationPop
+    ImageVerificationPop,
   },
   render(createElement) {
     this.createElement = createElement;
     const subItemEle = createElement(subItem, {
       style: {
-        display: this.hide()
+        display: this.hide(),
       },
       class: {
         "vue-form-item": true,
-        "vue-form-code": this.item.type === "verifyCode" ? true : false
+        "vue-form-code": this.item.type === "verifyCode" ? true : false,
       },
       props: {
         item: this.item,
-        form: this.form
+        form: this.form,
       },
       scopedSlots: {
-        [this.item.type]: props => {
+        [this.item.type]: (props) => {
           // debugger;
           return createElement(
             "div",
             {
               class: {
-                "vue-form-flex": this.item.type === "verifyCode" ? true : false
+                "vue-form-flex": this.item.type === "verifyCode" ? true : false,
                 // 'vue-form-info':this.item.info? true:false,
-              }
+              },
             },
             [
               this[this.item.type](props),
@@ -41,18 +41,14 @@ export default {
                     "el-checkbox",
                     {
                       props: {
-                        value:
-                          this.form[this.item.checkLink.keyName] ===
-                          this.item.checkLink.plusValue
-                            ? true
-                            : false,
-                        disabled: this.dateDisabled(this.item.checkLink)
+                        value: this.compareValue(this.item.checkLink),
+                        disabled: this.dateDisabled(this.item.checkLink),
                       },
                       style: {
-                        "margin-left": "14px"
+                        "margin-left": "14px",
                       },
                       on: {
-                        input: val => {
+                        input: (val) => {
                           // debugger;
                           if (val) {
                             this.form[
@@ -65,8 +61,8 @@ export default {
                           }
                           this.item.checkLink.tick &&
                             this.item.checkLink.tick(val);
-                        }
-                      }
+                        },
+                      },
                     },
                     this.item.checkLink.label
                   )
@@ -74,42 +70,42 @@ export default {
               this.item.info
                 ? createElement("span", {
                     domProps: {
-                      innerHTML: this.item.info
+                      innerHTML: this.item.info,
                     },
                     style: {
-                      "margin-left": "14px"
-                    }
+                      "margin-left": "14px",
+                    },
                   })
-                : ""
+                : "",
             ]
           );
-        }
-      }
+        },
+      },
     });
     if (this.item.type === "verifyCode") {
       return createElement("div", [
         createElement("image-verification-pop", {
           props: {
             imgShow: this.imgShow,
-            src: this.item.imageUrl
+            src: this.item.imageUrl,
           },
           on: {
             tick: () => {
               this.imgShow = false;
             },
-            chooseValue: graphCode => {
+            chooseValue: (graphCode) => {
               const form = {
                 [this.item.sendKeyName]: this.item.noAssociated
                   ? this.item.sendNumber
                   : this.form[this.item.associated],
-                graphCode
+                graphCode,
               };
               this.item.tickCb(form, this.sendSuccess, this.sendFail);
-            }
+            },
           },
-          ref: "imageVerificationPop"
+          ref: "imageVerificationPop",
         }),
-        subItemEle
+        subItemEle,
       ]);
     } else {
       return subItemEle;
@@ -118,27 +114,27 @@ export default {
   data() {
     return {
       imgShow: false,
-      validateCodeEle: ""
+      validateCodeEle: "",
       // uploadUrl:'',
     };
   },
   props: {
     readonly: {
-      type: Boolean
+      type: Boolean,
     },
     disabled: {
-      type: Boolean
+      type: Boolean,
     },
     item: {
-      type: Object
+      type: Object,
     },
     form: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   provide: function() {
     return {
-      refValidate: this.refValidate
+      refValidate: this.refValidate,
     };
   },
   inject: ["refValidate"],
@@ -151,15 +147,31 @@ export default {
           this.item.hideLink.type == undefined ||
           this.item.hideLink.type === "hide"
         ) {
-          return this.form[this.item.hideLink.keyName] ===
-            this.item.hideLink.value
-            ? "none"
-            : "block";
+          if (Array.isArray(this.item.hideLink.value)) {
+            return this.item.hideLink.value.includes(
+              this.form[this.item.hideLink.keyName]
+            )
+              ? "none"
+              : "block";
+          } else {
+            return this.form[this.item.hideLink.keyName] ===
+              this.item.hideLink.value
+              ? "none"
+              : "block";
+          }
         } else if (this.item.hideLink.type === "show") {
-          return this.form[this.item.hideLink.keyName] ===
-            this.item.hideLink.value
-            ? "block"
-            : "none";
+          if (Array.isArray(this.item.hideLink.value)) {
+            return this.item.hideLink.value.includes(
+              this.form[this.item.hideLink.keyName]
+            )
+              ? "block"
+              : "none";
+          } else {
+            return this.form[this.item.hideLink.keyName] ===
+              this.item.hideLink.value
+              ? "block"
+              : "none";
+          }
         } else {
           return "";
         }
@@ -178,7 +190,7 @@ export default {
       const attrs = props.url
         ? {
             href: props.url,
-            target: "_blank"
+            target: "_blank",
           }
         : {};
       if (props.download) attrs.download = props.text;
@@ -187,27 +199,27 @@ export default {
         {
           attrs,
           style: {
-            "text-decoration": "none"
-          }
+            "text-decoration": "none",
+          },
         },
         [
           this.createElement(
             "span",
             {
               style: {
-                color: props.color
-              }
+                color: props.color,
+              },
             },
             props.text
-          )
+          ),
         ]
       );
     },
     upload({ props }) {
       const textChild = this.createElement("div", {
         domProps: {
-          innerHTML: props.html
-        }
+          innerHTML: props.html,
+        },
       });
       var child;
       var bro;
@@ -215,10 +227,10 @@ export default {
         class: "el-icon-error",
         style: {
           "margin-left": "6px",
-          cursor: "pointer"
+          cursor: "pointer",
         },
         on: {
-          click: e => {
+          click: (e) => {
             e.stopPropagation();
             props.tick &&
               props.tick.delete &&
@@ -226,8 +238,8 @@ export default {
             this.form[props.keyName] = "";
             props.uploadUrl = "";
             // props.defaultValue = '';
-          }
-        }
+          },
+        },
       });
       if (this.form[props.keyName]) {
         if (props.uploadType === "file") {
@@ -238,26 +250,26 @@ export default {
                 click: () => {
                   const value = {
                     keyName: props.keyName,
-                    value: this.form[props.keyName]
+                    value: this.form[props.keyName],
                   };
                   props.tick && props.tick.look && props.tick.look(value);
-                }
-              }
+                },
+              },
             },
             [
               props.uploadUrl,
-              this.dateDisabled(props) ? "" : deleteEle //如果disable 则不显示deleteEle按钮
+              this.dateDisabled(props) ? "" : deleteEle, //如果disable 则不显示deleteEle按钮
             ]
           );
         } else if (props.uploadType === "image") {
           // debugger;
           child = this.createElement("img", {
             class: {
-              avatar: true
+              avatar: true,
             },
             domProps: {
-              src: props.uploadUrl
-            }
+              src: props.uploadUrl,
+            },
           });
         }
       } else {
@@ -267,8 +279,8 @@ export default {
             "el-button",
             {
               props: {
-                disabled: this.dateDisabled(props)
-              }
+                disabled: this.dateDisabled(props),
+              },
             },
             "上传"
           );
@@ -276,8 +288,8 @@ export default {
           child = this.createElement("i", {
             class: {
               "el-icon-plus": true,
-              "avatar-uploader-icon": true
-            }
+              "avatar-uploader-icon": true,
+            },
           });
         }
       }
@@ -289,7 +301,8 @@ export default {
               "el-upload",
               {
                 class: {
-                  "avatar-uploader": props.uploadType === "image" ? true : false
+                  "avatar-uploader":
+                    props.uploadType === "image" ? true : false,
                 },
                 props: {
                   headers: props.headers,
@@ -329,7 +342,7 @@ export default {
                         props.tick.fail(response);
                     }
                   },
-                  "before-upload": file => {
+                  "before-upload": (file) => {
                     const isLt = file.size / 1024 / 1024 < props.limitSize;
                     if (!isLt) {
                       this.$message.error(
@@ -345,18 +358,18 @@ export default {
                       }
                     }
                   },
-                  "on-error": err => {
+                  "on-error": (err) => {
                     props.tick && props.tick.error(err);
-                  }
-                }
+                  },
+                },
               },
               [child]
-            )
+            ),
       ];
     },
     areaSelect({ props }) {
       // debugger
-      return props.area.map(item => {
+      return props.area.map((item) => {
         return this[item.type]({ props: item });
       });
       // return  this.createElement('area-select',{
@@ -383,11 +396,11 @@ export default {
     text({ props }) {
       return this.createElement("div", {
         style: {
-          color: props.color ? props.color : "#414141"
+          color: props.color ? props.color : "#414141",
         },
         domProps: {
-          innerHTML: this.form[props.keyName]
-        }
+          innerHTML: this.form[props.keyName],
+        },
       });
     },
     verifyCode({ props }) {
@@ -398,17 +411,27 @@ export default {
             form: this.form,
             associated: props.associated,
             noAssociated: props.noAssociated,
-            imgShow: this.imgShow
+            imgShow: this.imgShow,
           },
           ref: "validateCode",
           on: {
             tick: () => {
               this.imgShow = true;
               this.$refs.imageVerificationPop.getCode();
-            }
-          }
-        })
+            },
+          },
+        }),
       ];
+    },
+    compareValue(checkLink) {
+      const formValue = this.form[checkLink.keyName];
+      if (Array.isArray(formValue)) {
+        return JSON.stringify(formValue) === JSON.stringify(checkLink.plusValue)
+          ? true
+          : false;
+      } else {
+        return formValue === checkLink.plusValue ? true : false;
+      }
     },
     dateDisabled(props) {
       if ((this.disabled || props.disabled) && !props.nodisabled) {
@@ -434,18 +457,18 @@ export default {
             : props.startPlaceholder,
           "end-placeholder": !props.endPlaceholder
             ? "结束日期"
-            : props.endPlaceholder
+            : props.endPlaceholder,
         },
         attrs: {
-          placeholder: props.placeholder ? props.placeholder : ""
+          placeholder: props.placeholder ? props.placeholder : "",
         },
         on: {
-          input: val => {
+          input: (val) => {
             // debugger
             this.form[props.keyName] = val;
             props.tick && props.tick(val);
-          }
-        }
+          },
+        },
       });
     },
     input({ props }) {
@@ -459,15 +482,15 @@ export default {
             class: "icon ",
             attrs: {
               "aria-hidden": true,
-              style: `fill:${props.icon.color ? props.icon.color : "#c0c4cd"}`
-            }
+              style: `fill:${props.icon.color ? props.icon.color : "#c0c4cd"}`,
+            },
           },
           [
             this.createElement("use", {
               attrs: {
-                "xlink:href": "#" + props.icon.name
-              }
-            })
+                "xlink:href": "#" + props.icon.name,
+              },
+            }),
           ]
         );
       } else if (props.icon && props.icon.type === "css") {
@@ -475,8 +498,8 @@ export default {
           slot: props.icon.fix,
           class: props.icon.name,
           attrs: {
-            style: `color:${props.icon.color ? props.icon.color : "#c0c4cd"}`
-          }
+            style: `color:${props.icon.color ? props.icon.color : "#c0c4cd"}`,
+          },
         });
       }
       return this.createElement(
@@ -487,22 +510,22 @@ export default {
             value: this.form[props.keyName],
             disabled: this.dateDisabled(props),
             type: props.inputType ? props.inputType : "text",
-            clearable: props.clearable ? true : false
+            clearable: props.clearable ? true : false,
           },
           attrs: {
             width: props.width ? props.width : "auto",
             placeholder: props.placeholder ? props.placeholder : "",
             maxlength: props.maxlength ? props.maxlength : "",
             minlength: props.minlength ? props.minlength : "",
-            "show-word-limit": props.showWordLimit ? true : false
+            "show-word-limit": props.showWordLimit ? true : false,
           },
           on: {
-            input: val => {
+            input: (val) => {
               this.form[props.keyName] =
                 props.inputType === "textarea" ? val : val.trim();
               if (props.spreadLink) {
                 if (Array.isArray(props.spreadLink)) {
-                  props.spreadLink.forEach(item => {
+                  props.spreadLink.forEach((item) => {
                     this.form[item.keyName] = item.tick(val);
                   });
                 } else {
@@ -520,8 +543,8 @@ export default {
               ) {
                 props.blur.cb(this.form[props.keyName]);
               }
-            }
-          }
+            },
+          },
         },
         [icon, props.sub ? this.select({ props: props.sub }) : ""]
       );
@@ -548,13 +571,13 @@ export default {
             disabled:
               (this.disabled || props.disabled) && !props.nodisabled
                 ? true
-                : false
+                : false,
           },
           on: {
-            input: event => {
+            input: (event) => {
               this.form[props.keyName] = event;
-            }
-          }
+            },
+          },
         },
         props.options.map((optItem, index) => {
           // debugger
@@ -563,15 +586,15 @@ export default {
             {
               props: {
                 label: optItem.label,
-                key: optItem.label
-              }
+                key: optItem.label,
+              },
             },
             [
               this.createElement("span", {
                 domProps: {
-                  innerHTML: optItem.labelName
-                }
-              })
+                  innerHTML: optItem.labelName,
+                },
+              }),
             ]
           );
         })
@@ -590,14 +613,14 @@ export default {
               disabled:
                 (this.disabled || props.disabled) && !props.nodisabled
                   ? true
-                  : false
+                  : false,
             },
             on: {
-              input: event => {
+              input: (event) => {
                 this.form[props.keyName] = event;
                 props.tick && props.tick(event);
-              }
-            }
+              },
+            },
           },
           optItem.labelName
         );
@@ -630,13 +653,13 @@ export default {
         "el-select",
         {
           style: {
-            width: props.width
+            width: props.width,
           },
           class: {
-            subSlot: props.slot ? true : false
+            subSlot: props.slot ? true : false,
           },
           attrs: {
-            placeholder: props.placeholder ? props.placeholder : ""
+            placeholder: props.placeholder ? props.placeholder : "",
             // clearable:props.clearable?true:false,
           },
           props: {
@@ -644,24 +667,28 @@ export default {
             value: this.form[props.keyName],
             filterable: props.filterable ? true : false,
             remote: props.remote ? true : false,
+            multiple: props.multiple ? true : false,
+            "reserve-keyword": props.reserveKeyword ? true : false,
+            "collapse-tags": props.collapseTags ? true : false,
             disabled:
               (this.disabled || props.disabled) && !props.nodisabled
                 ? true
                 : false,
             clearable: props.clearable ? true : false,
-            "remote-method": val => {
+            "remote-method": (val) => {
+              // debugger;
               // this.form[props.keyName]= val
               // console.log(val, "remote-method");
               const data = {
                 keyName: props.keyName,
-                [props.keyName]: val
+                [props.keyName]: val,
               };
               props.tick(data);
-            }
+            },
           },
           on: {
-            change: async event => {
-              // debugger
+            change: async (event) => {
+              // debugger;
               // console.log(this.form.city)
               // console.log(this.form)
               // debugger
@@ -673,7 +700,7 @@ export default {
               }
               if (props.spreadLink) {
                 if (Array.isArray(props.spreadLink)) {
-                  props.spreadLink.forEach(item => {
+                  props.spreadLink.forEach((item) => {
                     this.form[item.keyName] = item.tick(event);
                   });
                 } else {
@@ -683,40 +710,43 @@ export default {
                   //支持返回promise对象
                 }
               }
-            }
+            },
           },
-          slot: props.slot
+          slot: props.slot,
         },
-        props.options.map(optItem => {
+        props.options.map((optItem) => {
+          // debugger;
           return this.createElement(
             "el-option",
             {
+              key: optItem.value,
               props: {
                 value: optItem.value,
-                label: optItem.label
-              }
+                label: optItem.label,
+                // key: optItem.value
+              },
             },
             //自定义 显示内容
             props.templete &&
-              props.templete.map(item => {
+              props.templete.map((item) => {
                 var value = this.getFinalStateKey(item, optItem);
                 // debugger;
                 return this.createElement(
                   "div",
                   {
-                    class: item.class
+                    class: item.class,
                   },
                   [
                     this.createElement("span", item.label),
-                    this.createElement("span", value)
+                    this.createElement("span", value),
                   ]
                 );
               })
           );
         })
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
